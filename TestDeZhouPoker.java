@@ -43,6 +43,33 @@ class DeZhouPoker {
 
 	}
 
+	public Result compete(String black, String white) {
+		CardType bCardType = cardsType(black);
+		CardType wCardType = cardsType(white);
+		// System.out.println(bCardType);
+		if (cardValue.get(bCardType) > cardValue.get(wCardType)) {
+			return Result.Black_wins;
+		} else if (cardValue.get(bCardType) < cardValue.get(wCardType)) {
+			return Result.White_wins;
+		} else {
+			Result result = null;
+			switch (bCardType) {
+			case TONGHUASHUN:
+				result = tongHuaRule(black, white);
+				break;
+			case TIEZHI:
+				result = tieZhiRule(black, white);
+				break;
+			case HULU:
+				result = huLuRule(black, white);
+				break;
+			default:
+				break;
+			}
+			return result;
+		}
+	}
+
 	public Result tongHuaRule(String black, String white) {
 		Result result = null;
 		Integer[] bNumbers = getNumbers(black);
@@ -67,35 +94,27 @@ class DeZhouPoker {
 			result = Result.Black_wins;
 		} else if (getKey(bNumOfEquals, 4).get(0) < getKey(wNumOfEquals, 4).get(0)) {
 			result = Result.White_wins;
-		} else{
+		} else {
 			result = Result.Tie;
 		}
 		return result;
 
 	}
 
-	public Result compete(String black, String white) {
-		CardType bCardType = cardsType(black);
-		CardType wCardType = cardsType(white);
-		// System.out.println(bCardType);
-		if (cardValue.get(bCardType) > cardValue.get(wCardType)) {
-			return Result.Black_wins;
-		} else if (cardValue.get(bCardType) < cardValue.get(wCardType)) {
-			return Result.White_wins;
+	private Result huLuRule(String black, String white) {
+		Result result = null;
+		Integer[] bNumbers = getNumbers(black);
+		Integer[] wNumbers = getNumbers(white);
+		HashMap<Integer, Integer> bNumOfEquals = numOfEquals(bNumbers);
+		HashMap<Integer, Integer> wNumOfEquals = numOfEquals(wNumbers);
+		if (getKey(bNumOfEquals, 3).get(0) > getKey(wNumOfEquals, 3).get(0)) {
+			result = Result.Black_wins;
+		} else if (getKey(bNumOfEquals, 3).get(0) < getKey(wNumOfEquals, 3).get(0)) {
+			result = Result.White_wins;
 		} else {
-			Result result = null;
-			switch (bCardType) {
-			case TONGHUASHUN:
-				result = tongHuaRule(black, white);
-				break;
-			case TIEZHI:
-				result = tieZhiRule(black, white);
-				break;
-			default:
-				break;
-			}
-			return result;
+			result = Result.Tie;
 		}
+		return result;
 	}
 
 	// ·ÖÀë³öÊý×Ö
@@ -239,8 +258,8 @@ public class TestDeZhouPoker {
 	String tieZhi = "AD AS AC AH 2D";
 	String tieZhi2 = "KD KS KC KH 2C";
 
-	String huLu = "3D 3S 5D 5S 5C";
-	String huLu2 = "4D 4S 6D 6S 6C";
+	String huLu = "4D 4S 6D 6S 6C";
+	String huLu2 = "3D 3S 5D 5S 5C";
 
 	String tongHua = "2D 4D 6D 8D AD";
 	String tongHua2 = "2H 4H 6H TH AH";
@@ -279,12 +298,20 @@ public class TestDeZhouPoker {
 		assertEquals(testObject.compete(tongHuaShun2, tongHuaShun), Result.White_wins);
 
 	}
-	
+
 	@Test
 	public void twoTieZhi() {
 		assertEquals(testObject.compete(tieZhi, tieZhi2), Result.Black_wins);
 		assertEquals(testObject.compete(tieZhi2, tieZhi2), Result.Tie);
 		assertEquals(testObject.compete(tieZhi2, tieZhi), Result.White_wins);
+
+	}
+
+	@Test
+	public void twoHuLu() {
+		assertEquals(testObject.compete(huLu, huLu2), Result.Black_wins);
+		assertEquals(testObject.compete(huLu2, huLu2), Result.Tie);
+		assertEquals(testObject.compete(huLu2, huLu), Result.White_wins);
 
 	}
 }
