@@ -63,11 +63,19 @@ class DeZhouPoker {
 			case HULU:
 				result = huLuRule(black, white);
 				break;
+			case TONGHUA:
+				result = tonghuaRule(black,white);
+				break;
 			default:
+				result = sanPaiRule(black, white);
 				break;
 			}
 			return result;
 		}
+	}
+
+	private Result tonghuaRule(String black, String white) {
+		return sanPaiRule(black, white);
 	}
 
 	public Result tongHuaRule(String black, String white) {
@@ -112,6 +120,26 @@ class DeZhouPoker {
 		} else if (getKey(bNumOfEquals, 3).get(0) < getKey(wNumOfEquals, 3).get(0)) {
 			result = Result.White_wins;
 		} else {
+			result = Result.Tie;
+		}
+		return result;
+	}
+
+	private Result sanPaiRule(String black, String white) {
+		Result result = null;
+		Integer[] bNumbers = getNumbers(black);
+		Integer[] wNumbers = getNumbers(white);
+		int i = 0;
+		for (; i < bNumbers.length; i++) {
+			if (bNumbers[i] > wNumbers[i]) {
+				result = Result.Black_wins;
+				break;
+			} else if (bNumbers[i] < wNumbers[i]) {
+				result = Result.White_wins;
+				break;
+			}
+		}
+		if (i == bNumbers.length) {
 			result = Result.Tie;
 		}
 		return result;
@@ -261,8 +289,8 @@ public class TestDeZhouPoker {
 	String huLu = "4D 4S 6D 6S 6C";
 	String huLu2 = "3D 3S 5D 5S 5C";
 
-	String tongHua = "2D 4D 6D 8D AD";
-	String tongHua2 = "2H 4H 6H TH AH";
+	String tongHua = "2D 4D 6D TD AD";
+	String tongHua2 = "2H 4H 6H 8H AH";
 
 	String shunZi = "AD KH QC JS TD";
 	String shunZi2 = "3D 4H 5C 6S 7D";
@@ -312,6 +340,14 @@ public class TestDeZhouPoker {
 		assertEquals(testObject.compete(huLu, huLu2), Result.Black_wins);
 		assertEquals(testObject.compete(huLu2, huLu2), Result.Tie);
 		assertEquals(testObject.compete(huLu2, huLu), Result.White_wins);
-
 	}
+
+	@Test
+	public void twoTongHua() {
+		assertEquals(testObject.compete(tongHua, tongHua2), Result.Black_wins);
+		assertEquals(testObject.compete(tongHua2, tongHua2), Result.Tie);
+		assertEquals(testObject.compete(tongHua2, tongHua), Result.White_wins);
+	}
+	
+	
 }
