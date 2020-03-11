@@ -55,7 +55,7 @@ class DeZhouPoker {
 			Result result = null;
 			switch (bCardType) {
 			case TONGHUASHUN:
-				result = tongHuaRule(black, white);
+				result = tongHuaShunRule(black, white);
 				break;
 			case TIEZHI:
 				result = tieZhiRule(black, white);
@@ -64,7 +64,10 @@ class DeZhouPoker {
 				result = huLuRule(black, white);
 				break;
 			case TONGHUA:
-				result = tonghuaRule(black,white);
+				result = tongHuaRule(black, white);
+				break;
+			case SHUNZI:
+				result = shunZiRule(black, white);
 				break;
 			default:
 				result = sanPaiRule(black, white);
@@ -74,11 +77,7 @@ class DeZhouPoker {
 		}
 	}
 
-	private Result tonghuaRule(String black, String white) {
-		return sanPaiRule(black, white);
-	}
-
-	public Result tongHuaRule(String black, String white) {
+	private Result shunZiRule(String black, String white) {
 		Result result = null;
 		Integer[] bNumbers = getNumbers(black);
 		Integer[] wNumbers = getNumbers(white);
@@ -90,6 +89,14 @@ class DeZhouPoker {
 			result = Result.Tie;
 		}
 		return result;
+	}
+
+	private Result tongHuaRule(String black, String white) {
+		return sanPaiRule(black, white);
+	}
+
+	public Result tongHuaShunRule(String black, String white) {
+		return shunZiRule(black, white);
 	}
 
 	public Result tieZhiRule(String black, String white) {
@@ -348,6 +355,13 @@ public class TestDeZhouPoker {
 		assertEquals(testObject.compete(tongHua2, tongHua2), Result.Tie);
 		assertEquals(testObject.compete(tongHua2, tongHua), Result.White_wins);
 	}
-	
-	
+
+	@Test
+	public void twoShunZi() {
+		assertEquals(testObject.compete(shunZi, shunZi2), Result.Black_wins);
+		assertEquals(testObject.compete(shunZi2, shunZi2), Result.Tie);
+		assertEquals(testObject.compete(shunZi2, shunZi), Result.White_wins);
+
+	}
+
 }
