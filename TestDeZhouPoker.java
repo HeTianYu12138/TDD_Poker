@@ -69,12 +69,31 @@ class DeZhouPoker {
 			case SHUNZI:
 				result = shunZiRule(black, white);
 				break;
+			case SANTIAO:
+				result = sanTiaoRule(black,white);
+				break;
 			default:
 				result = sanPaiRule(black, white);
 				break;
 			}
 			return result;
 		}
+	}
+
+	private Result sanTiaoRule(String black, String white) {
+		Result result = null;
+		Integer[] bNumbers = getNumbers(black);
+		Integer[] wNumbers = getNumbers(white);
+		HashMap<Integer, Integer> bNumOfEquals = numOfEquals(bNumbers);
+		HashMap<Integer, Integer> wNumOfEquals = numOfEquals(wNumbers);
+		if (getKey(bNumOfEquals, 3).get(0) > getKey(wNumOfEquals, 3).get(0)) {
+			result = Result.Black_wins;
+		} else if (getKey(bNumOfEquals, 3).get(0) < getKey(wNumOfEquals, 3).get(0)) {
+			result = Result.White_wins;
+		} else {
+			result = Result.Tie;
+		}
+		return result;
 	}
 
 	private Result shunZiRule(String black, String white) {
@@ -361,6 +380,14 @@ public class TestDeZhouPoker {
 		assertEquals(testObject.compete(shunZi, shunZi2), Result.Black_wins);
 		assertEquals(testObject.compete(shunZi2, shunZi2), Result.Tie);
 		assertEquals(testObject.compete(shunZi2, shunZi), Result.White_wins);
+
+	}
+	
+	@Test
+	public void twoSanTiao() {
+		assertEquals(testObject.compete(sanTiao, sanTiao2), Result.Black_wins);
+		assertEquals(testObject.compete(sanTiao2, sanTiao2), Result.Tie);
+		assertEquals(testObject.compete(sanTiao2, sanTiao), Result.White_wins);
 
 	}
 
