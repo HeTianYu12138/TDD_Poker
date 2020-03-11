@@ -275,10 +275,16 @@ public class TestDeZhouPoker {
 	@Test
 	public void twoTongHuaShun() {
 		assertEquals(testObject.compete(tongHuaShun, tongHuaShun2), Result.Black_wins);
+		assertEquals(testObject.compete(tongHuaShun2, tongHuaShun2), Result.Tie);
+		assertEquals(testObject.compete(tongHuaShun2, tongHuaShun), Result.White_wins);
+
 	}
 	
 	@Test
 	public void twoTieZhi() {
 		assertEquals(testObject.compete(tieZhi, tieZhi2), Result.Black_wins);
+		assertEquals(testObject.compete(tieZhi2, tieZhi2), Result.Tie);
+		assertEquals(testObject.compete(tieZhi2, tieZhi), Result.White_wins);
+
 	}
 }
