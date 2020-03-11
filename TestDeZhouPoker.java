@@ -72,10 +72,13 @@ class DeZhouPoker {
 				result = shunZiRule(black, white);
 				break;
 			case SANTIAO:
-				result = sanTiaoRule(black,white);
+				result = sanTiaoRule(black, white);
 				break;
 			case LIANGDUI:
-				result = liangDuiRule(black,white);
+				result = liangDuiRule(black, white);
+				break;
+			case DUIZI:
+				result = duiZiRule(black, white);
 				break;
 			default:
 				result = sanPaiRule(black, white);
@@ -83,6 +86,53 @@ class DeZhouPoker {
 			}
 			return result;
 		}
+	}
+
+	private Result duiZiRule(String black, String white) {
+		Result result = null;
+		Integer[] bNumbers = getNumbers(black);
+		Integer[] wNumbers = getNumbers(white);
+		HashMap<Integer, Integer> bNumOfEquals = numOfEquals(bNumbers);
+		HashMap<Integer, Integer> wNumOfEquals = numOfEquals(wNumbers);
+		Integer bInteger = getKey(bNumOfEquals, 2).get(0);
+		Integer wInteger = getKey(wNumOfEquals, 2).get(0);
+		if (bInteger > wInteger) {
+			result = Result.Black_wins;
+		} else if (bInteger < wInteger) {
+			result = Result.White_wins;
+		} else {
+			
+			Integer[] b2Numbers = new Integer[3];
+			Integer[] w2Numbers = new Integer[3];
+			int blength = 0;
+			int wlength = 0;
+			for (Integer cur : bNumbers) {
+				if(cur!=bInteger){
+					b2Numbers[blength++] = cur;
+				}
+			}
+			for (Integer cur : wNumbers) {
+				if(cur!=wInteger){
+					w2Numbers[wlength++] = cur;
+				}
+			}
+			Arrays.sort(b2Numbers);
+			Arrays.sort(w2Numbers);
+			int i=b2Numbers.length-1;
+			for(;i>=0;i--){
+				if (b2Numbers[i] > w2Numbers[i]) {
+					result = Result.Black_wins;
+					break;
+				} else if (b2Numbers[i] < w2Numbers[i]) {
+					result = Result.White_wins;
+					break;
+				}
+			}
+			if(i==-1){
+				result = Result.Tie;
+			}
+		}
+		return result;
 	}
 
 	private Result liangDuiRule(String black, String white) {
@@ -104,14 +154,14 @@ class DeZhouPoker {
 				result = Result.Black_wins;
 			} else if (bList.get(0) < wList.get(0)) {
 				result = Result.White_wins;
-			}else{
+			} else {
 				List<Integer> b1List = getKey(bNumOfEquals, 1);
 				List<Integer> w1List = getKey(wNumOfEquals, 1);
-				if (b1List.get(0)> w1List.get(0)) {
+				if (b1List.get(0) > w1List.get(0)) {
 					result = Result.Black_wins;
-				} else if (b1List.get(0)< w1List.get(0)) {
+				} else if (b1List.get(0) < w1List.get(0)) {
 					result = Result.White_wins;
-				}else {
+				} else {
 					result = Result.Tie;
 				}
 			}
@@ -194,8 +244,8 @@ class DeZhouPoker {
 		Result result = null;
 		Integer[] bNumbers = getNumbers(black);
 		Integer[] wNumbers = getNumbers(white);
-		int i = 0;
-		for (; i < bNumbers.length; i++) {
+		int i = bNumbers.length - 1; 
+		for (; i >= 0; i--) {
 			if (bNumbers[i] > wNumbers[i]) {
 				result = Result.Black_wins;
 				break;
@@ -204,13 +254,14 @@ class DeZhouPoker {
 				break;
 			}
 		}
-		if (i == bNumbers.length) {
+		if (i == -1) {
 			result = Result.Tie;
 		}
 		return result;
 	}
 
 	// ·ÖÀë³öÊý×Ö
+
 	public Integer[] getNumbers(String card) {
 		String[] cards = card.split(" ");
 		Integer[] numbers = new Integer[5];
@@ -369,12 +420,14 @@ public class TestDeZhouPoker {
 	String liangDui4 = "3H 3S 6K 6D 5D";
 	String liangDui5 = "5H 6S 6H 4C 5D";
 	String liangDui6 = "5K 5S 6K 6D 2D";
-	
-	String duiZi = "3H 3S 4H 6S 7D";
-	String duiZi2 = "6D 3C 4H 6H 7C";
 
-	String sanPai = "3H 5S 7D 9S JC";
-	String sanPai2 = "4H 6S 8D 2S AC";
+	String duiZi = "6D 3C 4H 6H 7C";
+	String duiZi2 = "3H 3S 4C 6S 7D";
+	String duiZi3 = "6D 3C 4H 6H 8C";
+	String duiZi4 = "6C 3S 4H 6S 7D";
+	
+	String sanPai = "4H 6S 8D 2S AC";
+	String sanPai2 = "3H 5S 7D 9S JC";
 
 	@Test
 	public void twoDiffTypeShun() {
@@ -425,7 +478,7 @@ public class TestDeZhouPoker {
 		assertEquals(testObject.compete(shunZi2, shunZi), Result.White_wins);
 
 	}
-	
+
 	@Test
 	public void twoSanTiao() {
 		assertEquals(testObject.compete(sanTiao, sanTiao2), Result.Black_wins);
@@ -433,9 +486,9 @@ public class TestDeZhouPoker {
 		assertEquals(testObject.compete(sanTiao2, sanTiao), Result.White_wins);
 
 	}
-	
+
 	@Test
-	public void twoLiangDui(){
+	public void twoLiangDui() {
 		assertEquals(testObject.compete(liangDui, liangDui2), Result.Black_wins);
 		assertEquals(testObject.compete(liangDui2, liangDui2), Result.Tie);
 		assertEquals(testObject.compete(liangDui2, liangDui), Result.White_wins);
@@ -443,4 +496,18 @@ public class TestDeZhouPoker {
 		assertEquals(testObject.compete(liangDui5, liangDui6), Result.Black_wins);
 	}
 
+	@Test
+	public void twoDuiZi() {
+		assertEquals(testObject.compete(duiZi, duiZi2), Result.Black_wins);
+		assertEquals(testObject.compete(duiZi2, duiZi2), Result.Tie);
+		assertEquals(testObject.compete(duiZi2, duiZi), Result.White_wins);
+		
+		assertEquals(testObject.compete(duiZi3, duiZi4), Result.Black_wins);
+	}
+	@Test
+	public void twoSanPai(){
+		assertEquals(testObject.compete(sanPai, sanPai2), Result.Black_wins);
+		assertEquals(testObject.compete(sanPai2, sanPai2), Result.Tie);
+		assertEquals(testObject.compete(sanPai2, sanPai), Result.White_wins);
+	}
 }
