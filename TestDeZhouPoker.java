@@ -12,6 +12,10 @@ enum CardType {
 	TONGHUASHUN, TIEZHI, HULU, TONGHUA, SHUNZI, SANTIAO, LIANGDUI, DUIZI, SANPAI
 }
 
+enum Result {
+	White_wins, Black_wins, Tie
+}
+
 class DeZhouPoker {
 	HashMap<CardType, Integer> cardValue = new HashMap<>();
 
@@ -37,31 +41,47 @@ class DeZhouPoker {
 
 	}
 
-	public String compete(String black, String white) {
+	public Result tongHuaRule(String black, String white) {
+		Result result = null;
+		Integer[] bNumbers = getNumbers(black);
+		Integer[] wNumbers = getNumbers(white);
+		if (bNumbers[4] > wNumbers[4]) {
+			result = Result.Black_wins;
+		} else if (bNumbers[4] < wNumbers[4]) {
+			result = Result.White_wins;
+		} else {
+			result = Result.Tie;
+		}
+		return result;
+	}
+
+	public Result compete(String black, String white) {
 		CardType bCardType = cardsType(black);
 		CardType wCardType = cardsType(white);
-		if (cardValue.get(bCardType) == cardValue.get(wCardType)) {
-			return null;
+		// System.out.println(bCardType);
+		if (cardValue.get(bCardType) > cardValue.get(wCardType)) {
+			return Result.Black_wins;
+		} else if (cardValue.get(bCardType) < cardValue.get(wCardType)) {
+			return Result.White_wins;
 		} else {
-			if (cardValue.get(bCardType) > cardValue.get(wCardType)) {
-				return "Black wins";
-			} else {
-				return "White wins";
+			Result result = null;
+			switch (bCardType) {
+			case TONGHUASHUN:
+				result = tongHuaRule(black, white);
+				break;
+			default:
+				break;
 			}
+			return result;
 		}
 	}
 
-	// 判断扑克牌的类型 同花顺＞铁支＞葫芦＞同花＞顺子＞三条＞两对＞对子＞散牌
-	public CardType cardsType(String card) {
-		CardType type = null;
+	// 分离出数字
+	public Integer[] getNumbers(String card) {
 		String[] cards = card.split(" ");
-		// 存储数字
 		Integer[] numbers = new Integer[5];
-		// 存储花色
-		Character[] flattern = new Character[5];
-		// 把数字和花色分离并存储
 		for (int i = 0; i < cards.length; i++) {
-			Character c = cards[i].charAt(0);
+			Character c = cards[i].trim().charAt(0);
 			Integer integer;
 			if (c == 'T') {
 				integer = 10;
@@ -74,12 +94,31 @@ class DeZhouPoker {
 			} else if (c == 'A') {
 				integer = 14;
 			} else {
-				integer = Integer.valueOf(cards[i].charAt(0));
+				integer = Integer.valueOf(cards[i].charAt(0)-'0');
 			}
 			numbers[i] = integer;
-			flattern[i] = cards[i].charAt(1);
 		}
 		Arrays.sort(numbers);
+		return numbers;
+	}
+
+	// 分离出花色
+	public Character[] getFlatterns(String card) {
+		String[] cards = card.split(" ");
+		Character[] flatterns = new Character[5];
+		for (int i = 0; i < cards.length; i++) {
+			flatterns[i] = cards[i].charAt(1);
+		}
+		return flatterns;
+	}
+
+	// 判断扑克牌的类型 同花顺＞铁支＞葫芦＞同花＞顺子＞三条＞两对＞对子＞散牌
+	public CardType cardsType(String card) {
+		CardType type = null;
+		// 把数字和花色分离并存储
+		Integer[] numbers = getNumbers(card);
+		Character[] flattern = getFlatterns(card);
+
 		HashMap<Integer, Integer> map = numOfEquals(numbers);
 		// 条件
 		// 同花
@@ -163,24 +202,46 @@ public class TestDeZhouPoker {
 	// HDSC
 	DeZhouPoker testObject = new DeZhouPoker();
 	String tongHuaShun = "AD KD JD QD TD";
+	String tongHuaShun2 = "2D 3D 4D 5D 6D";
+
 	String tieZhi = "AD AS AC AH 2D";
+	String tieZhi2 = "KD KS KC KH 2C";
+
 	String huLu = "3D 3S 5D 5S 5C";
+	String huLu2 = "4D 4S 6D 6S 6C";
+
 	String tongHua = "2D 4D 6D 8D AD";
+	String tongHua2 = "2H 4H 6H TH AH";
+
 	String shunZi = "AD KH QC JS TD";
+	String shunZi2 = "3D 4H 5C 6S 7D";
+
 	String sanTiao = "AH AS AD 2D 6H";
+	String sanTiao2 = "KH KS KD 3D 4H";
+
 	String liangDui = "3H 3S 4H 4S 5D";
+	String liangDui2 = "5H 6S 6H 4C 5D";
+
 	String duiZi = "3H 3S 4H 6S 7D";
+	String duiZi2 = "6D 3C 4H 6H 7C";
+
 	String sanPai = "3H 5S 7D 9S JC";
+	String sanPai2 = "4H 6S 8D 2S AC";
 
 	@Test
 	public void twoDiffTypeShun() {
-		 assertEquals(testObject.compete(sanPai,tieZhi), "White wins");
-		 assertEquals(testObject.compete(duiZi,tieZhi ), "White wins");
-		 assertEquals(testObject.compete(liangDui,tieZhi ), "White wins");
-		 assertEquals(testObject.compete(sanTiao,tieZhi ), "White wins");
-		assertEquals(testObject.compete(shunZi, tieZhi), "White wins");
-		 assertEquals(testObject.compete(tongHua,tieZhi ), "White wins");
-		 assertEquals(testObject.compete(huLu,tieZhi ), "White wins");
-		assertEquals(testObject.compete(tongHuaShun, tieZhi), "Black wins");
+		assertEquals(testObject.compete(sanPai2, tieZhi), Result.White_wins);
+		assertEquals(testObject.compete(duiZi2, tieZhi), Result.White_wins);
+		assertEquals(testObject.compete(liangDui2, tieZhi), Result.White_wins);
+		assertEquals(testObject.compete(sanTiao2, tieZhi), Result.White_wins);
+		assertEquals(testObject.compete(shunZi2, tieZhi), Result.White_wins);
+		assertEquals(testObject.compete(tongHua2, tieZhi), Result.White_wins);
+		assertEquals(testObject.compete(huLu2, tieZhi), Result.White_wins);
+		assertEquals(testObject.compete(tongHuaShun2, tieZhi), Result.Black_wins);
+	}
+
+	@Test
+	public void twoTongHuaShun() {
+		assertEquals(testObject.compete(tongHuaShun, tongHuaShun2), Result.Black_wins);
 	}
 }
