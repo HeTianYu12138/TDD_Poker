@@ -3,8 +3,10 @@ package dezhoupoker;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +57,23 @@ class DeZhouPoker {
 		return result;
 	}
 
+	public Result tieZhiRule(String black, String white) {
+		Result result = null;
+		Integer[] bNumbers = getNumbers(black);
+		Integer[] wNumbers = getNumbers(white);
+		HashMap<Integer, Integer> bNumOfEquals = numOfEquals(bNumbers);
+		HashMap<Integer, Integer> wNumOfEquals = numOfEquals(wNumbers);
+		if (getKey(bNumOfEquals, 4).get(0) > getKey(wNumOfEquals, 4).get(0)) {
+			result = Result.Black_wins;
+		} else if (getKey(bNumOfEquals, 4).get(0) < getKey(wNumOfEquals, 4).get(0)) {
+			result = Result.White_wins;
+		} else{
+			result = Result.Tie;
+		}
+		return result;
+
+	}
+
 	public Result compete(String black, String white) {
 		CardType bCardType = cardsType(black);
 		CardType wCardType = cardsType(white);
@@ -68,6 +87,9 @@ class DeZhouPoker {
 			switch (bCardType) {
 			case TONGHUASHUN:
 				result = tongHuaRule(black, white);
+				break;
+			case TIEZHI:
+				result = tieZhiRule(black, white);
 				break;
 			default:
 				break;
@@ -94,7 +116,7 @@ class DeZhouPoker {
 			} else if (c == 'A') {
 				integer = 14;
 			} else {
-				integer = Integer.valueOf(cards[i].charAt(0)-'0');
+				integer = Integer.valueOf(cards[i].charAt(0) - '0');
 			}
 			numbers[i] = integer;
 		}
@@ -184,7 +206,7 @@ class DeZhouPoker {
 		return type;
 	}
 
-	// 统计相同的数字{(num,times)}
+	// 统计相同的数字{(number,times)...}
 	public HashMap<Integer, Integer> numOfEquals(Integer[] integers) {
 		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
 		for (int i = 0; i < integers.length; i++) {
@@ -196,10 +218,20 @@ class DeZhouPoker {
 		}
 		return map;
 	}
+
+	// 由value 得key
+	public List<Integer> getKey(Map<Integer, Integer> map, Integer value) {
+		List<Integer> keyList = new ArrayList<>();
+		for (Integer key : map.keySet()) {
+			if (map.get(key).equals(value)) {
+				keyList.add(key);
+			}
+		}
+		return keyList;
+	}
 }
 
 public class TestDeZhouPoker {
-	// HDSC
 	DeZhouPoker testObject = new DeZhouPoker();
 	String tongHuaShun = "AD KD JD QD TD";
 	String tongHuaShun2 = "2D 3D 4D 5D 6D";
@@ -243,5 +275,10 @@ public class TestDeZhouPoker {
 	@Test
 	public void twoTongHuaShun() {
 		assertEquals(testObject.compete(tongHuaShun, tongHuaShun2), Result.Black_wins);
+	}
+	
+	@Test
+	public void twoTieZhi() {
+		assertEquals(testObject.compete(tieZhi, tieZhi2), Result.Black_wins);
 	}
 }
